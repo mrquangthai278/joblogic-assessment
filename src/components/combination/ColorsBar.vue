@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <div v-for="(item, index) in data" class="flex-1" :key="index">
-      <ColorItem :data="item" :canCopy="canCopy" :itemHeight="itemHeight" />
+      <ColorItem :data="item" :canCopy="canCopy" :customClass="classItem" />
 
       <slot name="itemFooter" v-bind="{ item, index }" />
     </div>
@@ -24,9 +24,9 @@ export default {
       default: () => [],
     },
 
-    itemHeight: {
-      type: Number,
-      default: () => 200,
+    classItem: {
+      type: String,
+      default: () => "",
     },
 
     canCopy: {

@@ -1,22 +1,27 @@
 <template>
-  <div class="relative">
+  <div class="relative py-8">
     <!-- <p class="text-white z-20 relative">{{ currentTemplateInfo }}</p> -->
 
-    <div class="absolute w-full top-0 left-0 h-[350px]">
+    <div class="absolute w-full top-0 left-0 h-[375px]">
       <img
         class="w-full h-full object-bottom"
         src="@/assets/images/asset/foreground.png"
-        :style="getBackgroundStyles"
+        :style="getMainBackgroundStyles"
       />
     </div>
 
     <div class="relative z-10 container m-auto">
       <div
-        class="pt-5 h-[calc(350px-200px)] flex flex-col items-center"
-        :class="getTitleClasses"
+        class="h-[calc(375px-200px)] flex flex-col items-center"
+        :class="getMainTitleClasses"
       >
-        <Breadcrumb :data="getBreadcrumbData" />
-        <h1 class="mt-2 text-4xl font-bold">
+        <Breadcrumb :data="getBreadcrumbData">
+          <template #seperator>
+            <i class="fa-solid fa-chevron-right"></i>
+          </template>
+        </Breadcrumb>
+
+        <h1 class="mt-2 text-4xl font-bold text-center">
           {{ getCurrentTemplateDetail?.name }}
           <br />
           color combination
@@ -29,7 +34,9 @@
       />
 
       <div class="mt-8">
-        <h1 class="text-black text-4xl font-bold">Related Combinations</h1>
+        <h1 class="text-black text-4xl font-bold text-center">
+          Related Combinations
+        </h1>
 
         <div class="grid grid-cols-2 gap-8 mt-4">
           <div v-for="item in getCurrentTemplateListRelated" :key="item.slug">
@@ -40,21 +47,42 @@
             />
           </div>
 
-          <div class="bg-gray-300 flex items-center justify-center h-[100px]">
+          <button
+            v-if="isCanLoadMore"
+            class="bg-gray-300 flex items-center justify-center h-[50px] lg:h-[75px] hover:opacity-80"
+            @click="loadMoreListData"
+          >
             <p>See more combinations</p>
-          </div>
+          </button>
         </div>
+      </div>
+
+      <div class="mt-16 flex flex-col gap-4 items-center">
+        <p class="text-xl text-center">
+          Use this color pallete and create beautiful designs and documents!
+        </p>
+
+        <button
+          class="w-fit py-2 px-4 rounded-sm hover:opacity-80"
+          :style="getMainBackgroundStyles"
+          @click="handeClickBrowse"
+        >
+          <p :class="getMainTitleClasses">Browse templates</p>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script >
 import set from "lodash/set";
+import cloneDeep from "lodash/cloneDeep";
 
 import Breadcrumb from "@/components/common/Breadcrumb";
 import TemplateCard from "@/components/card/TemplateCard";
 import RelatedCombination from "@/components/combination/RelatedCombination";
+
+import ListHandler from "@/mixins/ListHandler";
 
 import listCombinations from "@/assets/jsons/combinations/combinations.json";
 
@@ -68,6 +96,8 @@ export default {
     TemplateCard,
     RelatedCombination,
   },
+
+  mixins: [ListHandler()],
 
   props: {
     slug: {
@@ -94,23 +124,23 @@ export default {
       return mixColors(color1, color2, color3, color4);
     },
 
-    getTitleClasses() {
+    getMainTitleClasses() {
       return isBlackOrWhite(this.getMainColorTheme) === "black"
         ? "text-white"
         : "text-black";
     },
 
-    getBackgroundStyles() {
+    getMainBackgroundStyles() {
       return {
         backgroundColor: this.getMainColorTheme,
       };
     },
 
     getCurrentTemplateDetail() {
-      return this.currentTemplateInfo?.combination ?? null;
+      return this.currentTemplateInfo;
     },
     getCurrentTemplateListRelated() {
-      return this.currentTemplateInfo?.relatedCombinations ?? [];
+      return this.getListDataView;
     },
 
     getBreadcrumbData() {
@@ -134,14 +164,18 @@ export default {
         if (!foundTemplate || !this.slug)
           throw new Error("Not found combination");
 
-        this.currentTemplateInfo = foundTemplate;
-      } catch (e) {
-        // console.error(e);
-        console.log("Getting default combination");
-        this.currentTemplateInfo = combinations[0];
-      }
+        const resultTemplate = cloneDeep(foundTemplate);
 
-      console.log("this", this.currentTemplateInfo);
+        this.currentTemplateInfo = resultTemplate?.combination;
+        this.setListData(resultTemplate?.relatedCombinations);
+      } catch (e) {
+        console.log("Getting default combination!");
+
+        const defaultInfo = cloneDeep(combinations[0]);
+
+        this.currentTemplateInfo = defaultInfo.combination;
+        this.setListData(defaultInfo.relatedCombinations);
+      }
     },
 
     handleClickTemplateRelatedItem(item) {
@@ -151,11 +185,14 @@ export default {
           slug: item.slug,
         },
       });
-      console.log("🚀 ~ handleClickTemplateRelatedItem ~ item:", item);
     },
 
     handleChangeColorItem({ value, index }) {
-      set(this.currentTemplateInfo, `combination.colors[${index}].hex`, value);
+      set(this.currentTemplateInfo, `colors[${index}].hex`, value);
+    },
+
+    handeClickBrowse() {
+      console.log("Payload:", this.currentTemplateInfo);
     },
   },
 
@@ -164,7 +201,7 @@ export default {
   },
 
   watch: {
-    "$route.params.slug": {
+    slug: {
       handler(newVal) {
         this.fetchCurrentTemplateInfo(newVal);
       },

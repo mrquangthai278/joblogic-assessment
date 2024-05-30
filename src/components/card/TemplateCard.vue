@@ -8,22 +8,21 @@
         :alt="data?.featuredImage?.alt || data?.slug"
       />
       <div
-        class="absolute top-4 right-4 shadow-sm bg-white p-2 text-black flex gap-1 cursor-pointer hover:opacity-80 rounded-sm"
+        class="absolute top-4 right-4 shadow-sm bg-white p-2 text-black flex gap-1 cursor-pointer hover:opacity-80 rounded-sm items-center"
       >
-        <span
-          :class="{
-            'text-gray-300': data?.liked,
-          }"
-          >❤</span
-        >
-        <span>{{ data?.likes }}</span>
+        <span>
+          <i
+            :class="data?.liked ? 'far fa-heart' : 'fas fa-heart text-red-500'"
+          ></i>
+        </span>
+        <span class="text-sm">{{ data?.likes }}</span>
       </div>
     </div>
     <div>
       <ColorsBar :data="getColorsData" :canCopy="true">
         <template #itemFooter="{ item, index }">
           <div class="flex flex-col text-black mt-5">
-            <p class="underline font-bold">{{ item.name }}</p>
+            <p class="underline font-bold text-center">{{ item.name }}</p>
 
             <ColorPicker
               :value="item.hex"
@@ -37,9 +36,14 @@
               "
             >
               <template #content="{ active }">
-                <span class="uppercase text-gray-500" @click="active">
-                  {{ item.hex }}
-                </span>
+                <div class="flex justify-center">
+                  <span
+                    class="uppercase text-gray-500 cursor-pointer hover:opacity-80 text-center"
+                    @click="active"
+                  >
+                    {{ item.hex }}
+                  </span>
+                </div>
               </template>
             </ColorPicker>
           </div>

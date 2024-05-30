@@ -4,12 +4,13 @@ module.exports = {
 
     theme: {
         extend: {
-            colors: {
-                "first-color": "var(--first-color)",
-                "second-color": "var(--second-color)",
-                "third-color": "var(--third-color)",
-                "fourth-color": "var(--fourth-color)"
+            container: {
+                padding: '2rem',
             },
+
+            fontFamily: {
+                'roboto': ['"Roboto"', "sans-serif"]
+            }
         },
     },
     plugins: [],

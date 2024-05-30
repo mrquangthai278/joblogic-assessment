@@ -1,16 +1,18 @@
 <template>
   <div
     class="block relative group"
+    :class="customClass ? customClass : 'h-[75px] lg:h-[100px]'"
     :style="getItemStyles"
     @click="$emit('click', data)"
   >
     <div
       v-if="canCopy || isMessaging"
-      class="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-10 cursor-pointer group-hover:flex w-full h-full items-center justify-center"
+      class="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-10 cursor-pointer group-hover:flex w-full h-full items-center justify-center text-white"
       :class="[isMessaging ? 'flex' : 'hidden']"
       @click="handleClickCopy"
     >
-      <span>{{ isCopied ? "V" : "Copy" }}</span>
+      <span v-if="!isCopied">Copy</span>
+      <i v-else class="fa-solid fa-check"></i>
     </div>
   </div>
 </template>
@@ -25,9 +27,9 @@ export default {
       default: () => null,
     },
 
-    itemHeight: {
-      type: Number,
-      default: () => 200,
+    customClass: {
+      type: String,
+      default: () => "",
     },
 
     canCopy: {
@@ -52,7 +54,6 @@ export default {
     getItemStyles() {
       return {
         backgroundColor: this.getDataValue,
-        height: `${this.itemHeight}px`,
       };
     },
   },

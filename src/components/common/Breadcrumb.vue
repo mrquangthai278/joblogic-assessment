@@ -12,7 +12,11 @@
         <span>{{ item?.label }}</span>
       </template>
 
-      <span v-if="seperator && index < data?.length - 1">{{ seperator }}</span>
+      <span v-if="seperator && index < data?.length - 1">
+        <slot name="seperator">
+          {{ seperator }}
+        </slot>
+      </span>
     </div>
   </div>
 </template>
